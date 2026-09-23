@@ -40,13 +40,15 @@ export default function CrowdConsensus() {
                 {reliable.map(sig => (
                   <div key={sig.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                     <div style={{
-                      width: '48px', height: '48px',
+                      minWidth: '80px', height: '48px',
+                      padding: '0 12px',
                       background: '#F0FDF4',
                       border: '2px solid #16A34A',
                       borderRadius: '12px',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontWeight: 800, fontSize: '18px', color: '#16A34A',
-                      boxShadow: '0 4px 12px rgba(22,163,74,0.15)'
+                      fontWeight: 800, fontSize: '16px', color: '#16A34A',
+                      boxShadow: '0 4px 12px rgba(22,163,74,0.15)',
+                      whiteSpace: 'nowrap'
                     }}>
                       {sig.label}
                     </div>
@@ -68,7 +70,8 @@ export default function CrowdConsensus() {
                     background: '#FEF2F2',
                     border: '1px solid #FECACA',
                     borderRadius: '8px',
-                    fontSize: '13px', fontWeight: 700, color: '#DC2626'
+                    fontSize: '13px', fontWeight: 700, color: '#DC2626',
+                    whiteSpace: 'nowrap'
                   }}>
                     {sig.label} ✗
                   </div>
