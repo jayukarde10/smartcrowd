@@ -79,7 +79,7 @@ class SignalStore {
 
   async getDemoPassengers(): Promise<PassengerSignal[]> {
     const res = await pool.query(
-      `SELECT raw_data
+      `SELECT *
        FROM passenger_signals
        WHERE raw_data->>'demo' = 'true'
        ORDER BY created_at DESC`
@@ -88,7 +88,34 @@ class SignalStore {
     const uniquePassengers = new Map<string, PassengerSignal>();
 
     for (const row of res.rows) {
-      const sig = row.raw_data as PassengerSignal;
+      const raw = row.raw_data as any || {};
+      
+      const sig: PassengerSignal = {
+        id: row.id || raw.id,
+        sessionId: row.session_id || raw.sessionId || row.id,
+        routeId: row.route_id || raw.routeId || 'route-104',
+        label: raw.label || row.id,
+        role: row.role || raw.role || 'PASSENGER',
+        position: { lat: row.lat || raw.position?.lat || 0, lng: row.lng || raw.position?.lng || 0 },
+        timestamp: raw.timestamp || parseInt(row.created_at) || Date.now(),
+        speed: row.speed !== undefined ? row.speed : (raw.speed || 0),
+        heading: row.heading !== undefined ? row.heading : (raw.heading || 0),
+        nearestStopId: raw.nearestStopId || 'unknown',
+        distanceFromRoute: raw.distanceFromRoute || 0,
+        directionMatch: raw.directionMatch || 'MATCH',
+        scoring: raw.scoring || {
+          speedScore: 100,
+          directionScore: 100,
+          routeAdherenceScore: 100,
+          continuityScore: 100,
+          stopBehaviorScore: 100,
+          reliabilityScore: row.reliability_score !== null ? row.reliability_score : 100
+        },
+        status: row.status || raw.status || 'RELIABLE',
+        rejectionReason: raw.rejectionReason,
+        positionHistory: raw.positionHistory || [{ lat: row.lat || raw.position?.lat || 0, lng: row.lng || raw.position?.lng || 0 }],
+        speedHistory: raw.speedHistory || [row.speed !== undefined ? row.speed : (raw.speed || 0)]
+      };
 
       if (!uniquePassengers.has(sig.sessionId)) {
         uniquePassengers.set(sig.sessionId, sig);
@@ -148,8 +175,11 @@ class SignalStore {
   }
 
   async clear(): Promise<void> {
-    // For prototype simulation reset, we truncate the tables
-    await pool.query('TRUNCATE TABLE passenger_signals');
+    // For prototype simulation reset, we delete live signals but preserve demo data
+    await pool.query(`
+      DELETE FROM passenger_signals 
+      WHERE raw_data->>'demo' IS NULL OR raw_data->>'demo' != 'true'
+    `);
     await pool.query('TRUNCATE TABLE bus_estimates');
     this.tickCount = 0;
   }
