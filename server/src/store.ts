@@ -77,6 +77,27 @@ class SignalStore {
     return Array.from(uniqueSignals.values());
   }
 
+  async getDemoPassengers(): Promise<PassengerSignal[]> {
+    const res = await pool.query(
+      `SELECT raw_data
+       FROM passenger_signals
+       WHERE raw_data->>'demo' = 'true'
+       ORDER BY created_at DESC`
+    );
+
+    const uniquePassengers = new Map<string, PassengerSignal>();
+
+    for (const row of res.rows) {
+      const sig = row.raw_data as PassengerSignal;
+
+      if (!uniquePassengers.has(sig.sessionId)) {
+        uniquePassengers.set(sig.sessionId, sig);
+      }
+    }
+
+    return Array.from(uniquePassengers.values());
+  }
+
   async getSignalHistory(sessionId: string, limit = 8): Promise<{ lat: number; lng: number; speed: number }[]> {
     const res = await pool.query(
       'SELECT lat, lng, speed FROM passenger_signals WHERE session_id = $1 ORDER BY created_at DESC LIMIT $2',

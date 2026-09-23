@@ -76,14 +76,36 @@ export function SimulationProvider({ children }: { children: React.ReactNode }) 
 
   const fetchBackendData = useCallback(async () => {
     try {
-      const [sigRes, busRes] = await Promise.all([
+      const [sigRes, busRes, demoRes] = await Promise.all([
         fetch(`${API_URL}/api/signals`),
-        fetch(`${API_URL}/api/bus/route-104`)
+        fetch(`${API_URL}/api/bus/route-104`),
+        fetch(`${API_URL}/api/signals/demo-passengers`)
       ]);
+      
+      let activeSignals: PassengerSignal[] = [];
       if (sigRes.ok) {
         const sigData = await sigRes.json();
-        setSignals(sigData.signals || []);
+        activeSignals = sigData.signals || [];
       }
+      
+      let demoPassengers: PassengerSignal[] = [];
+      if (demoRes.ok) {
+        const demoData = await demoRes.json();
+        demoPassengers = demoData.signals || [];
+      }
+      
+      const uniqueSignals = new Map<string, PassengerSignal>();
+      for (const sig of activeSignals) {
+        uniqueSignals.set(sig.sessionId, sig);
+      }
+      for (const sig of demoPassengers) {
+        if (!uniqueSignals.has(sig.sessionId)) {
+          uniqueSignals.set(sig.sessionId, sig);
+        }
+      }
+      
+      setSignals(Array.from(uniqueSignals.values()));
+
       if (busRes.ok) {
         const busData = await busRes.json();
         setBusEstimate(busData);

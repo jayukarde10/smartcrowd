@@ -90,4 +90,15 @@ router.get('/', async (_req: Request, res: Response) => {
   }
 });
 
+// GET /api/signals/demo-passengers — return historical demo passengers
+router.get('/demo-passengers', async (_req: Request, res: Response) => {
+  try {
+    const passengers = await store.getDemoPassengers();
+    res.json({ count: passengers.length, signals: passengers });
+  } catch (err) {
+    console.error('Error fetching demo passengers:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
 export default router;

@@ -2,17 +2,22 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useSimulation } from '../../context/SimulationContext';
 import BusMap from '../../components/BusMap';
 import { ArrowLeft, Navigation, ShieldCheck, Bus } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ROUTE_104_STOPS } from '../../data/routes';
+import { usePassengerState } from '../../hooks/usePassengerState';
 
 export default function PassengerTracking() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signals, busEstimate } = useSimulation();
+  const { profile } = usePassengerState();
   
   // Persist state during tracking flow
   const [isSharing] = useState(location.state?.isSharing ?? false);
   const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
+  
+  // Generate a consistent session ID for this user's tracking session
+  const sessionIdRef = useRef(`passenger-${profile.name.replace(/\s+/g, '-').toLowerCase()}-${Date.now().toString().slice(-4)}`);
 
   useEffect(() => {
     let lastPost = 0;
@@ -30,10 +35,10 @@ export default function PassengerTracking() {
                  headers: { 'Content-Type': 'application/json' },
                  body: JSON.stringify({
                      signals: [{
-                         id: 'passenger-real',
-                         sessionId: 'passenger-real',
+                         id: sessionIdRef.current,
+                         sessionId: sessionIdRef.current,
                          routeId: 'route-104',
-                         label: 'Real User',
+                         label: profile.name || 'Passenger',
                          role: 'PASSENGER',
                          position: { lat: pos.coords.latitude, lng: pos.coords.longitude },
                          timestamp: Date.now(),
