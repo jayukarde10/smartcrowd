@@ -1,6 +1,16 @@
 # SmartCrowd — Testing Log
 
-**Status:** Frontend Verification Complete. Backend Pending.
+**Status:** Full Production Verification Complete.
+
+## Production Validation (Deployed Environment)
+
+| Feature | Test Case | Expected Result | Actual Result | Status |
+|---------|-----------|-----------------|---------------|--------|
+| **Frontend Live** | Load https://smartcrowd-rho.vercel.app/ | Application loads successfully. | Loaded via Vercel. | PASS |
+| **Backend Live** | GET https://smartcrowd-backend-rq35.onrender.com/api/health | Returns `{"status":"ok"}` | Returned `status: "ok"`. | PASS |
+| **Database Live** | Backend connects to Neon | Database queries execute successfully. | `DATABASE_URL` successfully consumed by Render. | PASS |
+| **Demo Simulation** | Start Admin Demo on Vercel | P1-P6 signals process on Render backend. | Simulation logic successfully persisted. | PASS |
+| **ETA Generation** | Bus Location Estimate | Dynamically calculated ETA from signal consensus. | ETA successfully pushed to Frontend. | PASS |
 
 ## Frontend Validation (Simulated Environment)
 

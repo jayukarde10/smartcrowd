@@ -5,13 +5,13 @@
 The core architecture filters raw GPS noise to find the reliable "Crowd Consensus" using a PostgreSQL-backed persistence layer.
 
 ```text
-Passenger Phone (GPS Sensor)
+Passenger Smartphone (GPS / Location Signal)
        ↓
 [ POST /api/signals ]
        ↓
-Express API (Node.js)
+Render Backend API (Node.js/Express)
        ↓
-PostgreSQL Database
+PostgreSQL / Neon
   (passenger_signals table)
        ↓
 Signal Processing Engine
@@ -39,21 +39,21 @@ Passenger UI & Admin Dashboard
 
 ## System Components
 
-### 1. Database (PostgreSQL)
-We utilize a PostgreSQL database to persist state:
+### 1. Database (PostgreSQL / Neon)
+We utilize a PostgreSQL database hosted on Neon to persist state:
 - `passenger_signals`: Stores all incoming real and simulated GPS telemetry data along with their computed reliability scores.
 - `bus_estimates`: Stores the aggregated consensus of the bus's location, current stop, and ETA.
 
-*Note: Routes and route stops remain as static code constants to reduce complexity for the prototype. Only streaming data (signals and estimates) are persisted in PostgreSQL.*
+*Note: Routes and route stops remain as static code constants in TypeScript to reduce complexity for the prototype. Only streaming data (signals and estimates) are persisted in PostgreSQL.*
 
-### 2. Backend (Node.js/Express)
-The `server/` directory hosts a REST API.
+### 2. Backend (Node.js/Express hosted on Render)
+The `server/` directory hosts the REST API deployed on Render.
 - Ingests raw GPS signals (`POST /api/signals`).
 - Executes the deterministic scoring pipeline.
 - Clusters signals to compute the bus position.
 - Simulates the P1-P6 scenarios dynamically.
 
-### 3. Frontend (React/Vite)
+### 3. Frontend (React/Vite hosted on Vercel)
 - **Passenger Flow**: Lightweight UI. If the user opts-in, it reads `navigator.geolocation` and posts to the API. It polls `GET /api/bus/:routeId` for updates.
 - **Admin Flow**: Diagnostic UI. Polls `GET /api/signals` to visualize the scoring, clustering, and filtering of all telemetry data.
 

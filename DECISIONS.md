@@ -37,3 +37,10 @@ Route definitions and stops (e.g., Route 104) are kept as static TypeScript cons
 ### 9. Deterministic vs AI ML Models
 **Decision**: The signal scoring uses deterministic, rules-based algorithms (speed limits, route polyline distances) rather than a black-box AI model.
 **Reason**: Explainability. The Admin dashboard can show exactly *why* P5 (the car) was rejected. An AI model would be harder to visualize and debug for a prototype demonstration.
+
+### 10. Production Deployment Architecture
+**Decision**: Deploy to Vercel (Frontend), Render (Backend), and Neon (PostgreSQL).
+**Reason**: 
+- **Vercel** provides excellent edge caching and CI/CD for React/Vite SPAs.
+- **Render** offers simple Node.js hosting with immediate environment variable configuration (`DATABASE_URL`, `FRONTEND_URL`) for the Express API.
+- **Neon** offers a serverless PostgreSQL database that easily scales for the backend storage needs without requiring local setup on the hosting environment.

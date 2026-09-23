@@ -3,7 +3,7 @@
 This script outlines the exact flow to demonstrate the CX0403 SmartCrowd solution to hackathon judges.
 
 ## Prerequisites
-- Run `npm run dev` to start the frontend.
+- Open the live production frontend: https://smartcrowd-rho.vercel.app/
 - Allow location permissions on the demo device.
 
 ---
