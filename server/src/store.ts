@@ -96,7 +96,7 @@ class SignalStore {
         routeId: row.route_id || raw.routeId || 'route-104',
         label: raw.label || row.id,
         role: row.role || raw.role || 'PASSENGER',
-        position: { lat: row.lat || raw.position?.lat || 0, lng: row.lng || raw.position?.lng || 0 },
+        position: { lat: Number(row.lat || raw.position?.lat || 0), lng: Number(row.lng || raw.position?.lng || 0) },
         timestamp: raw.timestamp || parseInt(row.created_at) || Date.now(),
         speed: row.speed !== undefined ? row.speed : (raw.speed || 0),
         heading: row.heading !== undefined ? row.heading : (raw.heading || 0),
@@ -113,7 +113,7 @@ class SignalStore {
         },
         status: row.status || raw.status || 'RELIABLE',
         rejectionReason: raw.rejectionReason,
-        positionHistory: raw.positionHistory || [{ lat: row.lat || raw.position?.lat || 0, lng: row.lng || raw.position?.lng || 0 }],
+        positionHistory: raw.positionHistory || [{ lat: Number(row.lat || raw.position?.lat || 0), lng: Number(row.lng || raw.position?.lng || 0) }],
         speedHistory: raw.speedHistory || [row.speed !== undefined ? row.speed : (raw.speed || 0)]
       };
 

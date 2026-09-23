@@ -142,6 +142,9 @@ export default function BusMap({ signals, busEstimate, height = '100%', showLabe
       dashArray: undefined,
     }).addTo(map);
     routeLayerRef.current = polyline;
+    
+    // Fit map viewport to encompass the entire route (which includes all demo passengers)
+    map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
 
     // Add stop markers
     ROUTE_104_STOPS.forEach(stop => {
