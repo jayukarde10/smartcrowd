@@ -60,12 +60,12 @@ function initHistory(id: string) {
   if (!sessionIds[id]) sessionIds[id] = genId();
 }
 
-export function simulationTick(scenario: ScenarioType = 'NORMAL'): PassengerSignal[] {
+export function simulationTick(scenario: ScenarioType = 'NORMAL', extraPassengers: PassengerSignal[] = []): PassengerSignal[] {
   const busSpeed = 30;
   const totalRouteDistance = 2800;
   busT = Math.min(0.95, busT + (busSpeed / 3.6 * 3) / totalRouteDistance);
 
-  return PERSONAS.map((persona) => {
+  const pSignals = PERSONAS.map((persona) => {
     initHistory(persona.id);
 
     let pos: { lat: number; lng: number };
@@ -144,6 +144,38 @@ export function simulationTick(scenario: ScenarioType = 'NORMAL'): PassengerSign
 
     return scoreSignal(raw);
   });
+
+  const dSignals = extraPassengers.map((dp) => {
+    initHistory(dp.id);
+
+    const rawPos = interpolatePolyline(busT);
+    const pos = addGpsJitter(rawPos.lat, rawPos.lng, 6);
+    const speed = 30 + (Math.random() - 0.5) * 4;
+    
+    const routeHead = busT < 0.99 ? bearing(
+      ROUTE_104_POLYLINE[Math.floor(busT * (ROUTE_104_POLYLINE.length-1))],
+      ROUTE_104_POLYLINE[Math.min(Math.floor(busT * (ROUTE_104_POLYLINE.length-1)) + 1, ROUTE_104_POLYLINE.length-1)]
+    ) : 90;
+    const heading = routeHead + (Math.random() - 0.5) * 10;
+
+    posHistories[dp.id] = [pos, ...posHistories[dp.id]].slice(0, HISTORY_LEN);
+    speedHistories[dp.id] = [speed, ...speedHistories[dp.id]].slice(0, HISTORY_LEN);
+
+    const raw: PassengerSignal = {
+      ...dp,
+      position: pos,
+      timestamp: Date.now(),
+      speed: Math.max(0, Math.round(speed * 10) / 10),
+      heading: (heading + 360) % 360,
+      positionHistory: posHistories[dp.id],
+      speedHistory: speedHistories[dp.id],
+    };
+
+    (raw as any).demo = true;
+    return scoreSignal(raw);
+  });
+
+  return [...pSignals, ...dSignals];
 }
 
 export function resetSimulation() {

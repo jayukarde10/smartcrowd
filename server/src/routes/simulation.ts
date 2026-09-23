@@ -18,9 +18,11 @@ const TICK_MS = 1500;
 let simInterval: ReturnType<typeof setInterval> | null = null;
 let simRunning = false;
 
+let activeDemoPassengers: any[] = [];
+
 async function runTick() {
   try {
-    const signals = simulationTick('NORMAL');
+    const signals = simulationTick('NORMAL', activeDemoPassengers);
     await store.addSignals(signals);
     const allSignals = await store.getSignals();
     const estimate = computeBusEstimate(allSignals);
@@ -39,6 +41,7 @@ router.post('/start', async (_req: Request, res: Response) => {
 
   resetSimulation();
   await store.clear();
+  activeDemoPassengers = await store.getDemoPassengers();
   simRunning = true;
 
   // Run first tick immediately
